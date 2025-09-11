@@ -38,6 +38,14 @@ const navigationItems = [
   { title: 'Alerts', url: '/alerts', icon: AlertTriangle },
 ];
 
+const nextGenItems = [
+  { title: 'Threat Intel', url: '/threat-intelligence', icon: Shield },
+  { title: 'Behavioral Analytics', url: '/behavioral-analytics', icon: Users },
+  { title: 'SOAR', url: '/soar', icon: Zap },
+  { title: 'Threat Hunting', url: '/threat-hunting', icon: Search },
+  { title: 'Incident Response', url: '/incident-response', icon: AlertTriangle },
+];
+
 const managementItems = [
   { title: 'Connectors', url: '/connectors', icon: Database },
   { title: 'Lookups', url: '/lookups', icon: FileText },
@@ -75,6 +83,25 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={item.url} className={getNavCls}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Next-Gen SIEM */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Next-Gen SIEM</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {nextGenItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>

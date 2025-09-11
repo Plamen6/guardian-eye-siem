@@ -13,6 +13,11 @@ import Rules from "./pages/Rules";
 import Alerts from "./pages/Alerts";
 import Connectors from "./pages/Connectors";
 import Settings from "./pages/Settings";
+import ThreatIntelligence from "./pages/ThreatIntelligence";
+import BehavioralAnalytics from "./pages/BehavioralAnalytics";
+import SOAR from "./pages/SOAR";
+import ThreatHunting from "./pages/ThreatHunting";
+import IncidentResponse from "./pages/IncidentResponse";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +49,11 @@ const App = () => (
               <Route path="rules" element={<Rules />} />
               <Route path="alerts" element={<Alerts />} />
               <Route path="connectors" element={<Connectors />} />
+              <Route path="threat-intelligence" element={<ThreatIntelligence />} />
+              <Route path="behavioral-analytics" element={<BehavioralAnalytics />} />
+              <Route path="soar" element={<SOAR />} />
+              <Route path="threat-hunting" element={<ThreatHunting />} />
+              <Route path="incident-response" element={<IncidentResponse />} />
               <Route path="users" element={<div className="p-6"><h1 className="text-2xl font-bold">User Management</h1><p>Coming soon...</p></div>} />
               <Route path="lookups" element={<div className="p-6"><h1 className="text-2xl font-bold">Lookup Tables</h1><p>Coming soon...</p></div>} />
               <Route path="settings" element={<Settings />} />
