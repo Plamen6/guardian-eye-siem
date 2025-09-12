@@ -21,11 +21,22 @@ import {
   Eye,
   AlertTriangle
 } from 'lucide-react';
-import { mockRules, getSeverityBadgeClass } from '@/lib/mockData';
+import { useRules } from '@/hooks/useRules';
+import { getSeverityBadgeClass } from '@/lib/mockData';
 import type { Rule } from '@/lib/types';
 
 const Rules = () => {
-  const [rules, setRules] = useState(mockRules);
+  const {
+    rules,
+    loading,
+    error,
+    createRule,
+    updateRule,
+    deleteRule,
+    testRule,
+    toggleRule
+  } = useRules();
+  
   const [searchFilter, setSearchFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedRule, setSelectedRule] = useState<Rule | null>(null);
@@ -43,34 +54,54 @@ const Rules = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const toggleRule = (ruleId: string) => {
-    setRules(rules.map(rule => 
-      rule.id === ruleId ? { ...rule, enabled: !rule.enabled } : rule
-    ));
-  };
-
-  const duplicateRule = (rule: Rule) => {
-    const newRule: Rule = {
-      ...rule,
-      id: `rule_${Math.random().toString(36).substr(2, 9)}`,
-      title: `${rule.title} (Copy)`,
-      enabled: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      trigger_count: 0
-    };
-    setRules([...rules, newRule]);
-  };
-
-  const deleteRule = (ruleId: string) => {
-    if (confirm('Are you sure you want to delete this rule?')) {
-      setRules(rules.filter(rule => rule.id !== ruleId));
+  const toggleRuleHandler = async (ruleId: string) => {
+    try {
+      await toggleRule(ruleId);
+    } catch (error) {
+      console.error('Failed to toggle rule:', error);
     }
   };
 
-  const testRule = async (rule: Rule) => {
-    // Simulate rule testing
-    alert(`Testing rule "${rule.title}" against historical data...`);
+  const duplicateRule = async (rule: Rule) => {
+    try {
+        await createRule({
+          title: `${rule.title} (Copy)`,
+          description: rule.description,
+          type: rule.type,
+          enabled: false,
+          yaml: rule.yaml,
+          expression: rule.expression,
+          python_code: rule.python_code,
+          timeframe: rule.timeframe,
+          threshold: rule.threshold,
+          level: rule.level,
+          fields: rule.fields,
+          tags: rule.tags,
+          created_by: 'system',
+        });
+    } catch (error) {
+      console.error('Failed to duplicate rule:', error);
+    }
+  };
+
+  const deleteRuleHandler = async (ruleId: string) => {
+    if (confirm('Are you sure you want to delete this rule?')) {
+      try {
+        await deleteRule(ruleId);
+      } catch (error) {
+        console.error('Failed to delete rule:', error);
+      }
+    }
+  };
+
+  const testRuleHandler = async (rule: Rule) => {
+    try {
+      const result = await testRule(rule.id);
+      alert(`Rule test completed. ${result.matches ? 'Rule would trigger!' : 'No matches found.'}`);
+    } catch (error) {
+      console.error('Failed to test rule:', error);
+      alert('Rule test failed. Check console for details.');
+    }
   };
 
   const createNewRule = () => {
@@ -78,40 +109,35 @@ const Rules = () => {
     setIsCreating(true);
   };
 
-  const saveRule = (ruleData: Partial<Rule>) => {
-    if (selectedRule) {
-      // Update existing rule
-      setRules(rules.map(rule => 
-        rule.id === selectedRule.id 
-          ? { ...rule, ...ruleData, updated_at: new Date() }
-          : rule
-      ));
-    } else {
-      // Create new rule
-      const newRule: Rule = {
-        id: `rule_${Math.random().toString(36).substr(2, 9)}`,
-        title: ruleData.title || 'New Rule',
-        description: ruleData.description,
-        type: ruleData.type || 'sigma',
-        enabled: false,
-        yaml: ruleData.yaml,
-        expression: ruleData.expression,
-        python_code: ruleData.python_code,
-        timeframe: ruleData.timeframe,
-        threshold: ruleData.threshold,
-        level: ruleData.level || 'medium',
-        fields: ruleData.fields || [],
-        tags: ruleData.tags || [],
-        created_by: 'admin',
-        created_at: new Date(),
-        updated_at: new Date(),
-        trigger_count: 0,
-        ...ruleData
-      };
-      setRules([...rules, newRule]);
+  const saveRule = async (ruleData: Partial<Rule>) => {
+    try {
+      if (selectedRule) {
+        // Update existing rule
+        await updateRule(selectedRule.id, ruleData);
+      } else {
+        // Create new rule
+        await createRule({
+          title: ruleData.title || 'New Rule',
+          description: ruleData.description,
+          type: ruleData.type || 'sigma',
+          enabled: false,
+          yaml: ruleData.yaml,
+          expression: ruleData.expression,
+          python_code: ruleData.python_code,
+          timeframe: ruleData.timeframe,
+          threshold: ruleData.threshold,
+          level: ruleData.level || 'medium',
+          fields: ruleData.fields || [],
+          tags: ruleData.tags || [],
+          created_by: 'user',
+        });
+      }
+      setSelectedRule(null);
+      setIsCreating(false);
+    } catch (error) {
+      console.error('Failed to save rule:', error);
+      alert('Failed to save rule. Check console for details.');
     }
-    setSelectedRule(null);
-    setIsCreating(false);
   };
 
   return (
@@ -130,7 +156,23 @@ const Rules = () => {
         </Button>
       </div>
 
-      {!isCreating && !selectedRule && (
+      {loading && (
+        <Card>
+          <CardContent className="py-12 text-center text-muted-foreground">
+            Loading rules...
+          </CardContent>
+        </Card>
+      )}
+
+      {error && (
+        <Card>
+          <CardContent className="py-12 text-center text-destructive">
+            Error: {error}
+          </CardContent>
+        </Card>
+      )}
+
+      {!loading && !error && !isCreating && !selectedRule && (
         <>
           {/* Filters */}
           <Card>
@@ -206,7 +248,7 @@ const Rules = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => testRule(rule)}
+                        onClick={() => testRuleHandler(rule)}
                       >
                         <TestTube className="h-4 w-4" />
                       </Button>
@@ -220,14 +262,14 @@ const Rules = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => toggleRule(rule.id)}
+                        onClick={() => toggleRuleHandler(rule.id)}
                       >
                         {rule.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => deleteRule(rule.id)}
+                        onClick={() => deleteRuleHandler(rule.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
