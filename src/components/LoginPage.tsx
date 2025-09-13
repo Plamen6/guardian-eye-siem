@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, Eye, EyeOff } from 'lucide-react';
 
 export const LoginPage = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +21,7 @@ export const LoginPage = () => {
     setIsLoading(true);
 
     try {
-const { error: signInError } = await signIn(username, password);
+const { error: signInError } = await signIn(email, password);
       if (signInError) {
         setError(signInError.message || 'Invalid email or password');
       }
@@ -64,13 +64,13 @@ const { error: signInError } = await signIn(username, password);
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  id="username"
-                  type="text"
-                  placeholder="Enter username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="email"
+                  type="email"
+                  placeholder="Enter email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading}
                   className="h-11"
@@ -110,7 +110,7 @@ const { error: signInError } = await signIn(username, password);
               <Button 
                 type="submit" 
                 className="w-full h-11" 
-                disabled={isLoading || !username || !password}
+                disabled={isLoading || !email || !password}
               >
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
@@ -126,8 +126,7 @@ const { error: signInError } = await signIn(username, password);
             <div className="mt-6 p-4 bg-muted/50 rounded-lg">
               <h4 className="text-sm font-medium mb-2">Demo Credentials:</h4>
               <div className="space-y-1 text-sm text-muted-foreground">
-                <div>Admin: <code className="bg-background px-1 rounded">admin / admin</code></div>
-                <div>Analyst: <code className="bg-background px-1 rounded">analyst / analyst</code></div>
+                <div>Create account or sign in with email/password</div>
               </div>
             </div>
           </CardContent>

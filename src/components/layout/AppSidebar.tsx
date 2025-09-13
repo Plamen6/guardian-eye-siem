@@ -28,7 +28,7 @@ import {
   SidebarFooter
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 const navigationItems = [
   { title: 'Dashboard', url: '/dashboard', icon: BarChart3 },
@@ -56,7 +56,7 @@ const managementItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const currentPath = location.pathname;
 
   const isCollapsed = state === 'collapsed';
@@ -141,10 +141,10 @@ export function AppSidebar() {
           {!isCollapsed && user && (
             <div className="px-3 py-2 bg-sidebar-accent rounded-md">
               <div className="text-sm font-medium text-sidebar-accent-foreground">
-                {user.username}
+                {user.email}
               </div>
-              <div className="text-xs text-sidebar-accent-foreground/70 capitalize">
-                {user.role}
+              <div className="text-xs text-sidebar-accent-foreground/70">
+                User Account
               </div>
             </div>
           )}
@@ -152,7 +152,7 @@ export function AppSidebar() {
             variant="ghost"
             size={isCollapsed ? 'icon' : 'sm'}
             className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
-            onClick={logout}
+            onClick={signOut}
           >
             <LogOut className="h-4 w-4" />
             {!isCollapsed && <span className="ml-2">Logout</span>}

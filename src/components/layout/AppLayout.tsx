@@ -5,7 +5,7 @@ import { AppSidebar } from './AppSidebar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Bell, Wifi, WifiOff } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 export const AppLayout = () => {
   const [isOnline, setIsOnline] = useState(true);
@@ -38,7 +38,7 @@ export const AppLayout = () => {
               <div className="hidden md:flex items-center space-x-2 text-sm text-muted-foreground">
                 <span>Connected as</span>
                 <Badge variant="outline" className="text-xs">
-                  {user?.username}
+                  {user?.email}
                 </Badge>
               </div>
             </div>
