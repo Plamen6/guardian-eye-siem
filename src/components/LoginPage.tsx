@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,7 +13,7 @@ export const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,9 +21,9 @@ export const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(username, password);
-      if (!success) {
-        setError('Invalid username or password');
+const { error: signInError } = await signIn(username, password);
+      if (signInError) {
+        setError(signInError.message || 'Invalid email or password');
       }
     } catch (err) {
       setError('Login failed. Please try again.');

@@ -20,23 +20,30 @@ import {
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
-import { mockConnectors } from '@/lib/mockData';
+import { useConnectors } from '@/hooks/useConnectors';
 import type { Connector, FileConnectorConfig, SyslogConnectorConfig } from '@/lib/types';
 
 const Connectors = () => {
-  const [connectors, setConnectors] = useState(mockConnectors);
+  const {
+    connectors,
+    loading,
+    error,
+    createConnector,
+    updateConnector,
+    deleteConnector,
+    toggleConnector,
+  } = useConnectors();
   const [selectedConnector, setSelectedConnector] = useState<Connector | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
-  const toggleConnector = (connectorId: string) => {
-    setConnectors(connectors.map(conn => 
-      conn.id === connectorId ? { ...conn, enabled: !conn.enabled } : conn
-    ));
-  };
-
-  const deleteConnector = (connectorId: string) => {
+  const deleteConnectorHandler = async (connectorId: string) => {
     if (confirm('Are you sure you want to delete this connector?')) {
-      setConnectors(connectors.filter(conn => conn.id !== connectorId));
+      try {
+        await deleteConnector(connectorId);
+      } catch (e) {
+        console.error('Failed to delete connector:', e);
+        alert('Failed to delete connector. Check console for details.');
+      }
     }
   };
 
@@ -45,36 +52,31 @@ const Connectors = () => {
     setIsCreating(true);
   };
 
-  const saveConnector = (connectorData: Partial<Connector>) => {
-    if (selectedConnector) {
-      // Update existing
-      setConnectors(connectors.map(conn => 
-        conn.id === selectedConnector.id 
-          ? { ...conn, ...connectorData, updated_at: new Date() }
-          : conn
-      ));
-    } else {
-      // Create new
-      const newConnector: Connector = {
-        id: `conn_${Math.random().toString(36).substr(2, 9)}`,
-        name: connectorData.name || 'New Connector',
-        type: connectorData.type || 'file_tail',
-        enabled: false,
-        config: connectorData.config || ({} as FileConnectorConfig | SyslogConnectorConfig),
-        state: {
-          bytes_processed: 0,
-          events_processed: 0,
-          errors: 0,
-          last_activity: new Date()
-        },
-        created_at: new Date(),
-        updated_at: new Date(),
-        ...connectorData
-      };
-      setConnectors([...connectors, newConnector]);
+  const saveConnector = async (connectorData: Partial<Connector>) => {
+    try {
+      if (selectedConnector) {
+        await updateConnector(selectedConnector.id, {
+          name: connectorData.name,
+          type: connectorData.type,
+          enabled: connectorData.enabled,
+          config: connectorData.config as any,
+        });
+      } else {
+        await createConnector({
+          name: connectorData.name || 'New Connector',
+          type: (connectorData.type as Connector['type']) || 'file_tail',
+          enabled: connectorData.enabled ?? false,
+          config: (connectorData.config as any) || ({} as FileConnectorConfig | SyslogConnectorConfig),
+          state: connectorData.state as any,
+        } as any);
+      }
+    } catch (e) {
+      console.error('Failed to save connector:', e);
+      alert('Failed to save connector. Check console for details.');
+    } finally {
+      setSelectedConnector(null);
+      setIsCreating(false);
     }
-    setSelectedConnector(null);
-    setIsCreating(false);
   };
 
   const getConnectorIcon = (type: string) => {
@@ -231,12 +233,12 @@ const Connectors = () => {
                           {connector.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                         </Button>
                         
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteConnector(connector.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteConnectorHandler(connector.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
