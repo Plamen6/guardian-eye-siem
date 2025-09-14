@@ -141,10 +141,10 @@ export function AppSidebar() {
           {!isCollapsed && user && (
             <div className="px-3 py-2 bg-sidebar-accent rounded-md">
               <div className="text-sm font-medium text-sidebar-accent-foreground">
-                {user.email}
+                {user?.user_metadata?.username || user?.email}
               </div>
-              <div className="text-xs text-sidebar-accent-foreground/70">
-                User Account
+              <div className="text-xs text-sidebar-accent-foreground/70 capitalize">
+                {user?.user_metadata?.username === 'admin' ? 'Administrator' : 'User Account'}
               </div>
             </div>
           )}

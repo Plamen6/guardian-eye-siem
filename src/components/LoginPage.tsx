@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, Eye, EyeOff } from 'lucide-react';
 
 export const LoginPage = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -21,9 +21,9 @@ export const LoginPage = () => {
     setIsLoading(true);
 
     try {
-const { error: signInError } = await signIn(email, password);
+      const { error: signInError } = await signIn(username, password);
       if (signInError) {
-        setError(signInError.message || 'Invalid email or password');
+        setError(signInError.message || 'Invalid username or password');
       }
     } catch (err) {
       setError('Login failed. Please try again.');
@@ -64,13 +64,13 @@ const { error: signInError } = await signIn(email, password);
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Username</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  placeholder="Enter username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                   disabled={isLoading}
                   className="h-11"
@@ -110,7 +110,7 @@ const { error: signInError } = await signIn(email, password);
               <Button 
                 type="submit" 
                 className="w-full h-11" 
-                disabled={isLoading || !email || !password}
+                disabled={isLoading || !username || !password}
               >
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
@@ -126,7 +126,8 @@ const { error: signInError } = await signIn(email, password);
             <div className="mt-6 p-4 bg-muted/50 rounded-lg">
               <h4 className="text-sm font-medium mb-2">Demo Credentials:</h4>
               <div className="space-y-1 text-sm text-muted-foreground">
-                <div>Create account or sign in with email/password</div>
+                <div>Username: <code className="bg-background px-1 rounded">admin</code></div>
+                <div>Password: <code className="bg-background px-1 rounded">Test4demo</code></div>
               </div>
             </div>
           </CardContent>

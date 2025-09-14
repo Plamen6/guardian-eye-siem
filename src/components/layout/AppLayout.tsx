@@ -38,7 +38,7 @@ export const AppLayout = () => {
               <div className="hidden md:flex items-center space-x-2 text-sm text-muted-foreground">
                 <span>Connected as</span>
                 <Badge variant="outline" className="text-xs">
-                  {user?.email}
+                  {user?.user_metadata?.username || user?.email}
                 </Badge>
               </div>
             </div>

@@ -7,7 +7,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signIn: (username: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
 }
 
@@ -63,9 +63,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (username: string, password: string) => {
+    // Check for hardcoded admin credentials
+    if (username === 'admin' && password === 'Test4demo') {
+      // Create a mock user object for admin
+      const mockUser = {
+        id: 'admin-user-id',
+        email: 'admin@securewatch.local',
+        username: 'admin',
+        role: 'admin',
+        aud: 'authenticated',
+        app_metadata: {},
+        user_metadata: { username: 'admin' },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      } as any;
+
+      const mockSession = {
+        access_token: 'mock-admin-token',
+        refresh_token: 'mock-refresh-token',
+        expires_in: 3600,
+        token_type: 'bearer',
+        user: mockUser
+      } as any;
+
+      setUser(mockUser);
+      setSession(mockSession);
+      
+      return { error: null };
+    }
+
+    // Fallback to Supabase auth for other users
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: username.includes('@') ? username : `${username}@securewatch.local`,
       password,
     });
     
@@ -73,6 +103,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    // Clear local admin session if exists
+    if (user?.user_metadata?.username === 'admin') {
+      setUser(null);
+      setSession(null);
+      return { error: null };
+    }
+
     const { error } = await supabase.auth.signOut();
     return { error };
   };
