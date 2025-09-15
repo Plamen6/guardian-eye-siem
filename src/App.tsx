@@ -8,7 +8,7 @@ import { LoginPage } from "@/components/LoginPage";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import Stream from "./pages/Stream";
-import Search from "./pages/Search";
+import SearchEvents from "./pages/SearchEvents";
 import Rules from "./pages/Rules";
 import Alerts from "./pages/Alerts";
 import Connectors from "./pages/Connectors";
@@ -47,7 +47,7 @@ const App = () => (
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="stream" element={<Stream />} />
-              <Route path="search" element={<Search />} />
+              <Route path="search" element={<SearchEvents />} />
               <Route path="rules" element={<Rules />} />
               <Route path="alerts" element={<Alerts />} />
               <Route path="connectors" element={<Connectors />} />
