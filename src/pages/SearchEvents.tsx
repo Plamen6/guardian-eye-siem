@@ -186,9 +186,9 @@ const SearchEvents = () => {
     setIsSearching(false);
   };
 
-  const getNestedValue = (obj: any, path: string): any => {
+  function getNestedValue(obj: any, path: string): any {
     return path.split('.').reduce((current, key) => current?.[key], obj);
-  };
+  }
 
   const handleEventClick = (event: NormalizedEvent) => {
     setSelectedEvent(event);
