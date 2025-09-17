@@ -17,14 +17,16 @@ interface SearchHistogramProps {
 
 export const SearchHistogram = ({ data, onTimeRangeSelect }: SearchHistogramProps) => {
   const datasets = useMemo(() => {
+    if (!data || data.length === 0) return [];
+    
     const allDatasets = new Set<string>();
-    data.forEach(item => {
-      Object.keys(item).forEach(key => {
+    for (const item of data) {
+      for (const key of Object.keys(item)) {
         if (key !== 'time' && key !== 'total') {
           allDatasets.add(key);
         }
-      });
-    });
+      }
+    }
     return Array.from(allDatasets);
   }, [data]);
 
